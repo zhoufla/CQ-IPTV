@@ -1,0 +1,32 @@
+name: Sync IPv6 M3U File
+
+on:
+  schedule:
+    # 每天凌晨2点运行一次
+    - cron: '0 2 * * *'
+
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: 检出当前仓库代码
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: 创建目录并下载文件
+    - name: Download m3u file to IPV6 directory
+      run: |
+        mkdir -p IPV6
+        wget https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/ipv6.m3u -O IPV6/ipv6.m3u
+
+    # Step 3: 提交到当前仓库
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add IPV6/ipv6.m3u
+        git commit -m "Update ipv6.m3u in IPV6 directory"
+        git push
