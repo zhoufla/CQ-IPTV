@@ -32,11 +32,23 @@ jobs:
         mkdir -p IPV6
         wget https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/ipv6.m3u -O IPV6/ipv6.m3u
 
-    # Step 3: 提交到当前仓库
-    - name: Commit and push changes
+      # Step 3: 检查文件是否修改
+    - name: Check for changes
+      id: check_changes
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add IPV6/ipv6.m3u
-        git commit -m "Update ipv6.m3u in IPV6 directory"
-        git push
+        if ! git diff --cached --quiet; then
+          echo "modified=true" >> $GITHUB_ENV
+        else
+          echo "modified=false" >> $GITHUB_ENV
+        fi
+
+      # Step 4: 提交到当前仓库（仅在文件修改时）
+    - name: Commit and push changes
+      if: env.modified == 'true'
+      run: |
+        git commit -m "Update ipv6.m3u"
+        git push        
+
