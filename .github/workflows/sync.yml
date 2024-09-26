@@ -8,6 +8,26 @@ on:
   workflow_dispatch: # 允许手动触发
 
 jobs:
+
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all workflows
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflows = await github.actions.listRepoWorkflows({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            for (const workflow of workflows.data.workflows) {
+              await github.actions.deleteWorkflow({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflow.id
+              });
+            }
+
   sync:
     runs-on: ubuntu-latest
 
